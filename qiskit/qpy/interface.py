@@ -203,14 +203,14 @@ def dump(
     # Table of byte offsets for each program (supported in QPY v16+)
     byte_offsets = []
     table_start = None
-    if version >= 16:
+    if version >= 16 and file_obj.seekable():
         table_start = file_obj.tell()
         # Skip the file position to write the byte offsets later
         file_obj.seek(len(programs) * formats.CIRCUIT_TABLE_ENTRY_SIZE, 1)
 
     # Serialize each program and write it to the file
     for program in programs:
-        if version >= 16:
+        if version >= 16 and file_obj.seekable():
             # Determine the byte offset before writing each program
             byte_offsets.append(file_obj.tell())
         binary_io.write_circuit(
@@ -222,7 +222,7 @@ def dump(
             annotation_factories=annotation_factories,
         )
 
-    if version >= 16:
+    if version >= 16 and file_obj.seekable():
         # Write the byte offsets for each program
         file_obj.seek(table_start)
         for offset in byte_offsets:
